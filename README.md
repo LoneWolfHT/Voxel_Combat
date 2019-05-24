@@ -1,2 +1,2 @@
-# Block_Combat
+# Voxel Combat
 A PvP subgame for Minetest
