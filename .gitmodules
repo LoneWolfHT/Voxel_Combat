@@ -1,0 +1,15 @@
+[submodule "mods/worldedit"]
+	path = mods/worldedit
+	url = https://github.com/Uberi/Minetest-WorldEdit.git
+[submodule "mods/superpick"]
+	path = mods/superpick
+	url = https://github.com/everamzah/superpick.git
+[submodule "mods/replacer"]
+	path = mods/replacer
+	url = https://github.com/Sokomine/replacer.git
+[submodule "mods/shooter"]
+	path = mods/shooter
+	url = https://github.com/stujones11/shooter.git
+[submodule "mods/wield3d"]
+	path = mods/wield3d
+	url = https://github.com/stujones11/wield3d.git
