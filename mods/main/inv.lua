@@ -5,6 +5,10 @@ minetest.register_on_joinplayer(function(player)
 		inv:set_size("main", 8*2)
 		player:hud_set_hotbar_itemcount(6)
 		player:hud_set_hotbar_image("hotbar_6.png")
+
+		for _, s in ipairs(inv:get_list("main")) do
+			inv:remove_item("main", s)
+		end
 	else
 		inv:set_size("main", 8*4)
 		player:hud_set_hotbar_itemcount(8)
@@ -13,7 +17,4 @@ minetest.register_on_joinplayer(function(player)
 
 	player:hud_set_flags({healthbar = true, breathbar = true})
 
-	for _, s in ipairs(inv:get_list("main")) do
-		inv:remove_item("main", s)
-	end
 end)

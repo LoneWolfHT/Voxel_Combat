@@ -50,6 +50,10 @@ minetest.register_on_joinplayer(function(p)
 	else
 		p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 	end
+
+	skybox.set(p, 6)
+	local one, two, three = p:get_sky()
+	p:set_sky(one, two, three, false)
 end)
 
 minetest.register_on_respawnplayer(function(p)
