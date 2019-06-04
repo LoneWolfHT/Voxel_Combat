@@ -13,3 +13,6 @@
 [submodule "mods/wield3d"]
 	path = mods/wield3d
 	url = https://github.com/stujones11/wield3d.git
+[submodule "mods/skybox"]
+	path = mods/skybox
+	url = https://github.com/minetest-mods/skybox.git
