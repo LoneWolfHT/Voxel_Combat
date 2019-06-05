@@ -1,5 +1,6 @@
 main = {
 	modes = {},
+	mode_interval = 60 * 10,
 	default_drops = {
 		default = "shooter_guns:ammo",
 		["shooter_guns:pistol_loaded"] = 20,
