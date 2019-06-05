@@ -23,3 +23,6 @@ for name in pairs(minetest.registered_lbms) do
 end
 
 default.can_grow = function() return true end
+
+minetest.registered_entities["__builtin:item"].on_punch = nil
+minetest.registered_entities["__builtin:item"].pointable = false
