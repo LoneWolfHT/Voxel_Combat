@@ -1,5 +1,7 @@
 local function can_pickup(inv, item)
-	if item:find("shooter_guns:ammo") then return true end
+	if item:find("shooter_guns:ammo") then
+		return not inv:contains_item("main", "shooter_guns:ammo 15")
+	end
 
 	local item2 = item
 	item = item:match(".-:[^%s]+"):gsub("_loaded", "")
