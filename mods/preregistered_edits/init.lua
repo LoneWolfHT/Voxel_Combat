@@ -7,6 +7,10 @@ for name, def in pairs(minetest.registered_nodes) do
 	newdef.groups.crumbly = nil
 	newdef.groups.dig_immediate = nil
 
+	if name:find("sapling") then
+		newdef.on_construct = default.grow_sapling
+	end
+
 	minetest.override_item(name, newdef)
 end
 
@@ -17,3 +21,5 @@ end
 for name in pairs(minetest.registered_lbms) do
 	minetest.registered_lbms[name] = nil
 end
+
+default.can_grow = function() return true end
