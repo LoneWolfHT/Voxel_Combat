@@ -20,14 +20,13 @@ minetest.register_globalstep(function(dtime)
 			local pos = player:get_pos()
 			local inv = player:get_inventory()
 
-			for _, object in ipairs(minetest.get_objects_inside_radius(pos, 1)) do
+			for _, object in ipairs(minetest.get_objects_inside_radius(pos, 1.1)) do
 				local self = object:get_luaentity()
 
 				if not object:is_player() and self and self.name == "__builtin:item" and
 				self.itemstring ~= "" then
-					if inv and can_pickup(inv, self.itemstring) then
+					if inv and inv:room_for_item("main", self.itemstring) and can_pickup(inv, self.itemstring) then
 						inv:add_item("main", ItemStack(self.itemstring))
-						self._removed = true
 						object:remove()
 					end
 				end
