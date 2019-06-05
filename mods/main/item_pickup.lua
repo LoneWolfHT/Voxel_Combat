@@ -2,10 +2,10 @@ local function can_pickup(inv, item)
 	if item:find("shooter_guns:ammo") then return true end
 
 	local item2 = item
-	item = item:match("((.-:.+))[$s_]")
+	item = item:match(".-:[^%s]+"):gsub("_loaded", "")
 
 	for i in pairs(main.current_mode.mode.drops) do
-		if item == i:match("((.-:.+))[$s_]") and not inv:contains_item("main", item) and not
+		if i ~= "default" and item == i:match(".-:[^%s]+"):gsub("_loaded", "") and not inv:contains_item("main", item) and not
 		inv:contains_item("main", item2) then
 			return true
 		end
