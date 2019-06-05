@@ -5,9 +5,8 @@ local function can_pickup(inv, item)
 	item = item:match("((.-:.+))[$s_]")
 
 	for i in pairs(main.current_mode.mode.drops) do
-		if item == i:match("((.-:.+))[$s_]") and not inv:contains_item("main", item) and not 
+		if item == i:match("((.-:.+))[$s_]") and not inv:contains_item("main", item) and not
 		inv:contains_item("main", item2) then
-			minetest.chat_send_all(dump(item .. " - " .. i:match("((.-:.+))[$s_]")))
 			return true
 		end
 	end
