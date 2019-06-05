@@ -2,12 +2,14 @@ main = {
 	modes = {},
 	default_drops = {
 		default = "shooter_guns:ammo",
-		["shooter_guns:pistol_loaded"] = 10,
-		["shooter_guns:rifle_loaded"] = 18,
-		["shooter_guns:machine_gun_loaded"] = 30,
-		["shooter_guns:shotgun_loaded"] = 30,
+		["shooter_guns:pistol_loaded"] = 20,
+		["shooter_guns:rifle_loaded"] = 36,
+		["shooter_guns:machine_gun_loaded"] = 60,
+		["shooter_guns:shotgun_loaded"] = 60,
+		["vc_weapons:sword"] = 70,
 	},
-	default_drop_interval = 40
+	default_starter_items = {"vc_weapons:knife"},
+	default_drop_interval = 20
 }
 
 function main.register_mode(name, def)
@@ -31,10 +33,16 @@ function main.start_mode(name)
 	}
 
 	for _, p in ipairs(minetest.get_connected_players()) do
+		if main.modes[name].starter_items and not minetest.check_player_privs(p, {map_maker = true}) then
+			for k, item in ipairs(main.modes[name].starter_items) do
+				p:get_inventory():add_item("main", item)
+			end
+		end
+
 		p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 	end
 
-	minetest.chat_send_all(minetest.colorize("yellow", "[Voxel Combat] ").."Current mode: "..name..
+	minetest.chat_send_all(minetest.colorize("yellow", "[Voxel Combat] ").."Current mode: "..main.modes[name].full_name..
 	". Current map (By "..mapdef.creator.."): "..mapdef.name)
 end
 
