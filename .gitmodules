@@ -13,3 +13,6 @@
 [submodule "mods/skybox"]
 	path = mods/skybox
 	url = https://github.com/minetest-mods/skybox.git
+[submodule "mods/shooter"]
+	path = mods/shooter
+	url = https://github.com/LoneWolfHT/shooter.git
