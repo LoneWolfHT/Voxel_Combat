@@ -1,9 +1,16 @@
-local function can_pickup(item)
-	for i in pairs(main.current_mode.mode.drops) do
-		if item:sub(1, i:len()) == i then return true end
-	end
-
+local function can_pickup(inv, item)
 	if item:find("shooter_guns:ammo") then return true end
+
+	local item2 = item
+	item = item:match("((.-:.+))[$s_]")
+
+	for i in pairs(main.current_mode.mode.drops) do
+		if item == i:match("((.-:.+))[$s_]") and not inv:contains_item("main", item) and not 
+		inv:contains_item("main", item2) then
+			minetest.chat_send_all(dump(item .. " - " .. i:match("((.-:.+))[$s_]")))
+			return true
+		end
+	end
 
 	return false
 end
@@ -19,7 +26,7 @@ minetest.register_globalstep(function(dtime)
 
 				if not object:is_player() and self and self.name == "__builtin:item" and
 				self.itemstring ~= "" then
-					if inv and can_pickup(self.itemstring) then
+					if inv and can_pickup(inv, self.itemstring) then
 						inv:add_item("main", ItemStack(self.itemstring))
 						self._removed = true
 						object:remove()
