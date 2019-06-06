@@ -6,7 +6,7 @@ minetest.register_globalstep(function(dtime)
 		checkstep = 0
 
 		for _, player in pairs(minetest.get_connected_players()) do
-			if player:get_pos().y < 1 then
+			if player:get_pos().y < -5 then
 				player:set_hp(0, {reason = "set_hp"})
 			end
 		end
