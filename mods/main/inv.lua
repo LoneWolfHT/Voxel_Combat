@@ -12,7 +12,7 @@ minetest.register_on_joinplayer(function(player)
 
 		if main.current_mode then
 			if main.current_mode.mode.starter_items then
-				for k, item in ipairs(main.current_mode.mode.starter_items) do
+				for _, item in ipairs(main.current_mode.mode.starter_items) do
 					inv:add_item("main", item)
 				end
 			end
@@ -29,7 +29,7 @@ end)
 
 sfinv.override_page("sfinv:crafting", {
 	title = "Main",
-	get = function(self, player, context)
+	get = function(_, player, context)
 		return sfinv.make_formspec(player, context, [[
 				image[0,4.7;1,1;gui_hb_bg.png]
 				image[1,4.7;1,1;gui_hb_bg.png]
