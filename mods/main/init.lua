@@ -3,7 +3,6 @@ main = {
 	mode_interval = 60 * 10,
 	default_drops = {
 		default = "shooter_guns:ammo",
-		["shooter_guns:pistol_loaded"] = 20,
 		["shooter_guns:rifle_loaded"] = 36,
 		["shooter_guns:machine_gun_loaded"] = 60,
 		["shooter_guns:shotgun_loaded"] = 60,
