@@ -11,6 +11,10 @@ for name, def in pairs(minetest.registered_nodes) do
 		newdef.on_construct = default.grow_sapling
 	end
 
+	if name:find("lava") then
+		newdef.damage_per_second = 100
+	end
+
 	minetest.override_item(name, newdef)
 end
 
