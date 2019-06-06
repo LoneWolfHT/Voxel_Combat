@@ -18,6 +18,17 @@ for name, def in pairs(minetest.registered_nodes) do
 	minetest.override_item(name, newdef)
 end
 
+for name, def in pairs(minetest.registered_items) do
+	local newdef = {groups = def.groups}
+
+	if name == "shooter_guns:ammo" then
+		newdef.range = 0
+		newdef.groups.hold_limit = 17
+	end
+
+	minetest.override_item(name, newdef)
+end
+
 for name in pairs(minetest.registered_abms) do
 	minetest.registered_abms[name] = nil
 end
