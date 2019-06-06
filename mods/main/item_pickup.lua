@@ -1,14 +1,24 @@
-local function can_pickup(inv, item)
-	if item:find("shooter_guns:ammo") then
-		return not inv:contains_item("main", "shooter_guns:ammo 15")
+local function inv_find(inv, stack)
+	local count = 0
+
+	for _, s in ipairs(inv:get_list("main")) do
+		if s:get_name():gsub("_loaded", "") == stack:gsub("_loaded", "") then
+			count = count + s:get_count()
+		end
 	end
 
-	local item2 = item
-	item = item:match(".-:[^%s]+"):gsub("_loaded", "")
+	return count
+end
 
-	for i in pairs(main.current_mode.mode.drops) do
-		if i ~= "default" and item == i:match(".-:[^%s]+"):gsub("_loaded", "") and not inv:contains_item("main", item) and not
-		inv:contains_item("main", item2) then
+local function can_pickup(inv, item)
+	local limit = minetest.get_item_group(item:get_name(), "hold_limit")
+
+	if item:get_count() <= 0 then return false end
+
+	if limit == 0 then
+		return true
+	elseif limit > 0 then
+		if inv_find(inv, item:get_name()) < limit then
 			return true
 		end
 	end
@@ -16,7 +26,7 @@ local function can_pickup(inv, item)
 	return false
 end
 
-minetest.register_globalstep(function(dtime)
+minetest.register_globalstep(function()
 	for _, player in ipairs(minetest.get_connected_players()) do
 		if player:get_hp() > 0 then
 			local pos = player:get_pos()
@@ -27,9 +37,20 @@ minetest.register_globalstep(function(dtime)
 
 				if not object:is_player() and self and self.name == "__builtin:item" and
 				self.itemstring ~= "" then
-					if inv and inv:room_for_item("main", self.itemstring) and can_pickup(inv, self.itemstring) then
-						inv:add_item("main", ItemStack(self.itemstring))
-						object:remove()
+					if inv then
+						local drop = ItemStack(self.itemstring)
+
+						while inv:room_for_item("main", drop:get_name()) and can_pickup(inv, drop) do
+							inv:add_item("main", drop:get_name())
+							drop:take_item(1)
+						end
+
+						if drop:get_count() <= 0 then
+							object:remove()
+						else
+							self.itemstring = drop:get_name().." "..drop:get_count()
+						end
+
 					end
 				end
 			end
