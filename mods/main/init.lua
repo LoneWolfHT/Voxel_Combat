@@ -25,6 +25,8 @@ function main.start_mode(name)
 		return
 	end
 
+	minetest.clear_objects("quick")
+
 	local mapdef = maps.load_map(map)
 	main.current_mode = {
 		name = name,
