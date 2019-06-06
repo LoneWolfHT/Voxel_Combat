@@ -7,7 +7,7 @@ main = {
 		["shooter_guns:rifle_loaded"] = 36,
 		["shooter_guns:machine_gun_loaded"] = 60,
 		["shooter_guns:shotgun_loaded"] = 60,
-		["combat:sword"] = 70,
+		["combat:sword"] = 60,
 	},
 	default_starter_items = {"combat:knife", "shooter_guns:pistol_loaded", "shooter_guns:ammo 2"},
 	default_drop_interval = 20
