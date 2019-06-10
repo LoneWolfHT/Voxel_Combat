@@ -1,5 +1,6 @@
 main = {
 	modes = {},
+	playing = {},
 	mode_interval = 60 * 10,
 	default_drops = {
 		default = "shooter_guns:ammo",
@@ -31,26 +32,48 @@ function main.start_mode(name)
 	main.current_mode = {
 		name = name,
 		mode = main.modes[name],
+		map = mapdef,
 		itemspawns = mapdef.itemspawns,
 		playerspawns = mapdef.playerspawns,
 	}
 
 	for _, p in ipairs(minetest.get_connected_players()) do
-		if main.modes[name].starter_items and not minetest.check_player_privs(p, {map_maker = true}) then
-			for k, item in ipairs(main.modes[name].starter_items) do
-				p:get_inventory():add_item("main", item)
-			end
+		if main.playing[p:get_player_name()] then
+			main.join_player(p)
 		end
-
-		p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 	end
 
-	minetest.chat_send_all(minetest.colorize("yellow", "[Voxel Combat] ").."Current mode: "..main.modes[name].full_name..
-	". Current map (By "..mapdef.creator.."): "..mapdef.name)
+	minetest.chat_send_all(minetest.colorize("yellow", "[Voxel Combat] ")..
+	"Current mode: "..main.modes[name].full_name..". Current map (By "..mapdef.creator.."): "..mapdef.name)
+
+	main.sethud_all("Current mode: "..main.modes[name].full_name..". Current map: "..mapdef.name, 7)
+end
+
+function main.join_player(player)
+	local inv = player:get_inventory()
+	local name = player:get_player_name()
+
+	main.give_starter_items(inv)
+
+	player:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
+
+	main.sethud_player(name,
+		"Current mode: "..main.current_mode.mode.full_name..
+		". Current map: "..main.current_mode.map.name,
+	7)
+
+	minetest.chat_send_player(name,
+		minetest.colorize("yellow", "[Voxel Combat] ")..
+		"Current mode: "..main.current_mode.mode.full_name..
+		". Current map (By "..main.current_mode.map.creator..
+		"): "..main.current_mode.map.name
+	)
+
+	main.playing[name] = true
 end
 
 --
---- Player join/leave/die/damage taken
+--- Player join/leave/die/damage
 --
 
 minetest.register_on_joinplayer(function(p)
@@ -59,7 +82,7 @@ minetest.register_on_joinplayer(function(p)
 	if #minetest.get_connected_players() == 1 then
 		main.start_mode("default")
 	else
-		p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
+		main.join_player(p)
 	end
 
 	skybox.set(p, 6)
@@ -85,15 +108,16 @@ end, true)
 --- Misc
 --
 
-function minetest.item_drop() -- Prevent picking up/dropping items
+function minetest.item_drop() -- Dropping items
 	return
 end
 
 minetest.set_mapgen_setting("mg_name", "singlenode", true) -- Set mapgen to singlenode
 
-dofile(minetest.get_modpath("main").."/modes.lua")
-dofile(minetest.get_modpath("main").."/drops.lua")
-dofile(minetest.get_modpath("main").."/inv.lua")
-dofile(minetest.get_modpath("main").."/sprint.lua")
-dofile(minetest.get_modpath("main").."/item_pickup.lua")
-dofile(minetest.get_modpath("main").."/kill_fall.lua")
+local dirs = minetest.get_dir_list(minetest.get_modpath("main"), false) -- Include all .lua files
+
+for _, filename in ipairs(dirs) do
+	if filename:find(".lua") and filename ~= "init.lua" then
+		dofile(minetest.get_modpath("main").."/"..filename)
+	end
+end
