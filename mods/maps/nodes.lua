@@ -30,3 +30,13 @@ minetest.register_node("maps:light", {
 	sunlight_propagates = true,
 	light_source = minetest.LIGHT_MAX,
 })
+
+minetest.register_node("maps:barrier", {
+	drawtype = "airlike",
+	description = "Invisible Barrier",
+	inventory_image = "default_meselamp.png^air.png",
+	walkable = false,
+	pointable = true,
+	paramtype = "light",
+	sunlight_propagates = true,
+})
