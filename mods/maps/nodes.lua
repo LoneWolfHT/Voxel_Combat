@@ -6,7 +6,7 @@ minetest.register_node("maps:spawnpoint", {
 	pointable = true,
 	paramtype = "light",
 	sunlight_propagates = true,
-	light_source = minetest.LIGHT_MAX,
+	light_source = 1,
 })
 
 minetest.register_node("maps:itemspawner", {
@@ -17,7 +17,7 @@ minetest.register_node("maps:itemspawner", {
 	pointable = true,
 	paramtype = "light",
 	sunlight_propagates = true,
-	light_source = minetest.LIGHT_MAX,
+	light_source = 1,
 })
 
 minetest.register_node("maps:light", {
