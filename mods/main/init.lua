@@ -96,6 +96,8 @@ minetest.register_on_joinplayer(function(p)
 end)
 
 minetest.register_on_respawnplayer(function(p)
+	if not main.current_mode.playerspawns then return false end
+
 	p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 
 	return true
