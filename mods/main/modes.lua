@@ -25,6 +25,8 @@ minetest.register_globalstep(function(dtime)
 		modestep = modestep + dtime
 	else
 		modestep = 0
-		main.start_mode(rand_mode())
+
+		main.sethud_all("Changing mode...")
+		minetest.after(3, function() main.start_mode(rand_mode()) end)
 	end
 end)

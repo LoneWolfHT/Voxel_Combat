@@ -19,6 +19,11 @@ function main.register_mode(name, def)
 end
 
 function main.start_mode(name)
+	main.current_mode = {
+		name = name,
+		mode = main.modes[name],
+	}
+
 	local map = maps.get_rand_map()
 
 	if not map then
@@ -29,13 +34,9 @@ function main.start_mode(name)
 	minetest.clear_objects("quick")
 
 	local mapdef = maps.load_map(map)
-	main.current_mode = {
-		name = name,
-		mode = main.modes[name],
-		map = mapdef,
-		itemspawns = mapdef.itemspawns,
-		playerspawns = mapdef.playerspawns,
-	}
+	main.current_mode.map = mapdef
+	main.current_mode.itemspawns = mapdef.itemspawns
+	main.current_mode.playerspawns = mapdef.playerspawns
 
 	for _, p in ipairs(minetest.get_connected_players()) do
 		if main.playing[p:get_player_name()] then
@@ -54,6 +55,10 @@ function main.join_player(player)
 	local name = player:get_player_name()
 
 	main.give_starter_items(inv)
+
+	skybox.set(player, main.get_sky(main.current_mode.map.skybox))
+	local one, two, three = player:get_sky()
+	player:set_sky(one, two, three, false)
 
 	player:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 

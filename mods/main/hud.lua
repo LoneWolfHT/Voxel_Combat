@@ -23,7 +23,7 @@ function main.sethud_all(text, timeout)
 				name = name.."_hud",
 				scale = {x=100, y=100},
 				text = text,
-				number = 0x00b500,
+				number = 0xffe700,
 				direction = 1,
 				alignment = {x=0, y=0},
 				offset = {x=0, y=0},
@@ -42,7 +42,7 @@ function main.sethud_player(name, text, timeout)
 	local player = minetest.get_player_by_name(name)
 
 	if not player then
-		minetest.log("error", "Tried to set the hud of a player that wasn't online! "..dump(name))
+		minetest.log("error", "Tried to set the hud of a player that isn't online! "..dump(name))
 		return
 	end
 
