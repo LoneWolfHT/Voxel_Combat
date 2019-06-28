@@ -42,7 +42,7 @@ minetest.register_chatcommand("maps", {
 		if not params then return end
 
 		if params[1] == "h" or params[1] == "help" then
-			return true, "Options: help/h | new | edit <mapname> | save [mapname (Only needed for new maps])"
+			return true, "Options: help/h | new | edit <mapname> | save"
 		end
 
 		if params[1] == "new" then
@@ -64,7 +64,7 @@ minetest.register_chatcommand("maps", {
 				return false, "You aren't editing/creating a map!"
 			end
 		else
-			return false, "Options: help/h | new | edit <mapname> | save [mapname (Only needed for new maps])"
+			return false, "Options: help/h | new | edit <mapname> | save"
 		end
 	end
 })
@@ -98,6 +98,10 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 
 	if not minetest.find_node_near(startpos, 20, "maps:spawnpoint", true) then
 		return false, "You must place at least one player spawner first!"
+	end
+
+	if not minetest.find_node_near(startpos, 20, "maps:itemspawner", true) then
+		return false, "You must place at least one item spawner first!"
 	end
 
 	if not conf then return false, error end
@@ -263,8 +267,7 @@ end
 function maps.show_save_form(player)
 	local p = minetest.get_player_by_name(player)
 
-	minetest.chat_send_all(dump(editors[player]))
-	if not editors[player] then
+	if not editors[player] or not editors[player].settings then
 		editors[player].settings.name = player.."s Map"
 		editors[player].settings.creator = player
 		editors[player].settings.skybox = "TropicalSunnyDay"
