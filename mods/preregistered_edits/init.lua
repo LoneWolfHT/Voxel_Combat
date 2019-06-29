@@ -21,8 +21,11 @@ end
 for name, def in pairs(minetest.registered_items) do
 	local newdef = {groups = def.groups}
 
-	if name == "shooter_guns:ammo" then
+	if name:find("shooter_guns:") then
 		newdef.range = 0
+	end
+
+	if name == "shooter_guns:ammo" then
 		newdef.groups.hold_limit = 17
 	end
 
