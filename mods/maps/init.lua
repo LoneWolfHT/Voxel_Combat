@@ -10,14 +10,6 @@ maps.mappath = minetest.get_worldpath().."/maps/" -- minetest.get_modpath("maps"
 
 local editors = {}
 
-local function generate_modes(name)
-	editors[name].settings.modes = {}
-
-	for _, def in pairs(main.modes) do
-		table.insert(editors[name].settings.modes, {name = def.full_name, enabled = true})
-	end
-end
-
 skybox.skies = {
 	"DarkStormy",
 	"CloudyLightRays",
@@ -246,11 +238,6 @@ function maps.load_map(name)
 end
 
 local function get_modes_string(name)
-	minetest.chat_send_all("getting modes string: "..dump(editors[name].settings.modes))
-	if not editors[name].settings.modes then
-		generate_modes(name)
-	end
-
 	local string = ""
 
 	for _, def in ipairs(editors[name].settings.modes) do
@@ -264,14 +251,55 @@ local function get_modes_string(name)
 	return(string:sub(1, -2))
 end
 
+local function tidy_modes(name)
+	if not editors[name].settings.modes then
+		editors[name].settings.modes = {}
+	end
+
+	for _, def in pairs(main.modes) do
+		local found = false
+
+		if editors[name].settings.modes then
+			for k, v in pairs(editors[name].settings.modes) do
+				if v.name == def.full_name then
+					found = true
+				end
+			end
+		end
+
+		if not found then
+			table.insert(editors[name].settings.modes, {name = def.full_name, enabled = true})
+		end
+	end
+
+	if editors[name].settings.modes then
+		for key, def in pairs(editors[name].settings.modes) do
+			local found = false
+
+			for k, v in pairs(main.modes) do
+				if v.full_name == def.name then
+					found = true
+					break
+				end
+			end
+
+			if not found then
+				editors[name].settings.modes[key] = nil
+			end
+		end
+	end
+end
+
 function maps.show_save_form(player)
 	local p = minetest.get_player_by_name(player)
 
-	if not editors[player] or not editors[player].settings then
+	if not editors[player].settings.name then
 		editors[player].settings.name = player.."s Map"
-		editors[player].settings.creator = player
-		editors[player].settings.skybox = "TropicalSunnyDay"
 	end
+
+	tidy_modes(player)
+
+	minetest.log(dump(editors[player].settings.modes))
 
 	skybox.set(p, main.get_sky(editors[player].settings.skybox))
 	local one, two, three = p:get_sky()
