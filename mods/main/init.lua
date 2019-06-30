@@ -1,7 +1,7 @@
 main = {
 	modes = {},
 	playing = {},
-	mode_interval = 60 * 10,
+	mode_interval = 60 * 5,
 	default_drops = {
 		default = "shooter_guns:ammo",
 		["combat:medkit"] = 20,
@@ -70,8 +70,8 @@ function main.join_player(player)
 	minetest.chat_send_player(name,
 		minetest.colorize("yellow", "[Voxel Combat] ")..
 		"Current mode: "..main.current_mode.mode.full_name..
-		". Current map (By "..main.current_mode.map.creator..
-		"): "..main.current_mode.map.name
+		". Current map: "..main.current_mode.map.name.." (By "..main.current_mode.map.creator..
+		")"
 	)
 
 	main.playing[name] = true
@@ -89,10 +89,6 @@ minetest.register_on_joinplayer(function(p)
 	else
 		main.join_player(p)
 	end
-
-	skybox.set(p, 6)
-	local one, two, three = p:get_sky()
-	p:set_sky(one, two, three, false)
 end)
 
 minetest.register_on_respawnplayer(function(p)
