@@ -44,9 +44,6 @@ function main.start_mode(name)
 		end
 	end
 
-	minetest.chat_send_all(minetest.colorize("yellow", "[Voxel Combat] ")..
-	"Current mode: "..main.modes[name].full_name..". Current map (By "..mapdef.creator.."): "..mapdef.name)
-
 	main.sethud_all("Current mode: "..main.modes[name].full_name..". Current map: "..mapdef.name, 7)
 end
 
