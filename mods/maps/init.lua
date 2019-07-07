@@ -39,12 +39,14 @@ minetest.register_chatcommand("maps", {
 
 		if params[1] == "new" then
 			if not editors[name] then
+				main.playing[name] = false
 				return true, maps.new_map(name)
 			else
 				return false, "A map is already being edited!"
 			end
 		elseif params[1] == "edit" and params[2] then
 			if not editors[name] then
+				main.playing[name] = false
 				return maps.edit_map(name, params[2])
 			else
 				return false, "A map is already being edited!"
@@ -207,8 +209,22 @@ function maps.get_rand_map(name)
 
 	local map = list[math.random(1, #list)]
 
-	while main.current_mode.map and not main.current_mode.map.modes[map].enabled do
-		map = list[math.random(1, #list)]
+	if main.current_mode.map ~= nil then
+		while true do
+			local conf, error = io.open(maps.mappath..name.."/map.conf")
+
+			if not conf then
+				minetest.log("error", error)
+				map = list[math.random(1, #list)]
+			else
+				local modes = minetest.deserialize(conf:read("*all"):match("modes = <.->"):sub(12, -2))
+				conf:close()
+
+				if map ~= main.current_mode.map.name and modes[map].enabled == true then
+					break
+				end
+			end
+		end
 	end
 
 	return map
@@ -221,6 +237,7 @@ function maps.load_map(name)
 
 	if not conf then return error end
 	local cfile = conf:read("*all")
+	conf:close()
 
 	mapdef.name = cfile:match("name = <.->"):sub(9, -2)
 	mapdef.creator = cfile:match("creator = <.->"):sub(12, -2)
@@ -229,7 +246,6 @@ function maps.load_map(name)
 	mapdef.playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 	mapdef.itemspawns = minetest.deserialize(cfile:match("ispawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 
-	conf:close()
 
 	minetest.place_schematic(pos, maps.mappath..name.."/map.mts", 0, {}, true,
 		{place_center_x = true, place_center_y=false, place_center_z=true})
@@ -299,8 +315,6 @@ function maps.show_save_form(player)
 
 	tidy_modes(player)
 
-	minetest.log(dump(editors[player].settings.modes))
-
 	skybox.set(p, main.get_sky(editors[player].settings.skybox))
 	local one, two, three = p:get_sky()
 	p:set_sky(one, two, three, false)
@@ -328,7 +342,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 	local modes = minetest.explode_textlist_event(fields.map_modes)
 
-	if modes.type == "DCL" then
+	if modes.type == "DCL" and editors[name].settings.modes and #editors[name].settings.modes > 0 then
 		editors[name].settings.modes[modes.index].enabled = not editors[name].settings.modes[modes.index].enabled
 	end
 	if fields.map_save then
@@ -341,6 +355,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 		if success then
 			editors[name] = nil
+			main.playing[name] = true
+			main.join_player(name)
 		end
 	elseif not fields.quit then
 		editors[name].settings.creator=fields.map_creator

@@ -1,4 +1,5 @@
 main = {
+	current_mode = {},
 	modes = {},
 	playing = {},
 	mode_interval = 60 * 5,
@@ -19,15 +20,14 @@ function main.register_mode(name, def)
 end
 
 function main.start_mode(name)
-	main.current_mode = {
-		name = name,
-		mode = main.modes[name],
-	}
+	main.current_mode.name = name
+	main.current_mode.mode = main.modes[name]
 
 	local map = maps.get_rand_map()
 
 	if not map then
 		minetest.log("error", "No maps to play on! Create one with /maps new")
+		main.current_mode = {}
 		return
 	end
 

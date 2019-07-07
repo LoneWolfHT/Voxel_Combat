@@ -23,12 +23,12 @@ end
 
 local dropstep = 0
 minetest.register_globalstep(function(dtime)
-	if not main.current_mode  then return end
+	if not main.current_mode or not main.current_mode.mode then return end
 
 	local dropint = main.current_mode.mode.drop_interval
 	local online_players = #minetest.get_connected_players()
 
-	if dropstep >= dropint/online_players and online_players >= 1 and main.current_mode.mode.itemspawns then
+	if dropint and dropstep >= dropint/online_players and online_players >= 1 and main.current_mode.mode.itemspawns then
 		dropstep = 0
 
 		main.spawn_rand_drop()
