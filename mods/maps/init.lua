@@ -190,7 +190,7 @@ function maps.edit_map(pname, mname)
 
 	while itemspawns and itemspawns[1] do
 		itemspawns[1].y = itemspawns[1].y + 777
-		playerspawns[1].x = playerspawns[1].x + (100 * editors[pname].id)
+		itemspawns[1].x = itemspawns[1].x + (100 * editors[pname].id)
 		minetest.set_node(itemspawns[1], {name = "maps:itemspawner"})
 		table.remove(itemspawns, 1)
 	end
