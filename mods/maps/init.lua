@@ -202,7 +202,7 @@ function maps.map_exists(name)
 	return false
 end
 
-function maps.get_rand_map(name)
+function maps.get_rand_map()
 	local list = minetest.get_dir_list(minetest.get_worldpath().."/maps/", true)
 
 	if not list or #list == 0 then return end
@@ -211,7 +211,7 @@ function maps.get_rand_map(name)
 
 	if main.current_mode.map ~= nil then
 		while true do
-			local conf, error = io.open(maps.mappath..name.."/map.conf")
+			local conf, error = io.open(maps.mappath..map.."/map.conf")
 
 			if not conf then
 				minetest.log("error", error)
