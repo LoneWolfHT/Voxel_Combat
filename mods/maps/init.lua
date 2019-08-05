@@ -157,7 +157,9 @@ function maps.edit_map(pname, mname)
 
 	editors[pname].action = "editing"
 	editors[pname].map = mname
-	editors[pname].settings = {}
+	editors[pname].settings = {
+		name = pname.."s Map"
+	}
 
 	minetest.emerge_area(vector.subtract(mpos, vector.new(20, 0, 20)), vector.add(mpos, vector.new(20, 16, 20)))
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
@@ -342,10 +344,6 @@ end
 function maps.show_save_form(player)
 	local p = minetest.get_player_by_name(player)
 
-	if not editors[player].settings.name then
-		editors[player].settings.name = player.."s Map"
-	end
-
 	tidy_modes(player)
 
 	skybox.set(p, main.get_sky(editors[player].settings.skybox))
@@ -378,6 +376,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if modes.type == "DCL" and editors[name].settings.modes and #editors[name].settings.modes > 0 then
 		editors[name].settings.modes[modes.index].enabled = not editors[name].settings.modes[modes.index].enabled
 	end
+
 	if fields.map_save then
 		local success, msg = maps.save_map(
 			name, fields.map_name, fields.map_creator,
@@ -392,7 +391,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			main.join_player(minetest.get_player_by_name(name))
 		end
 	elseif not fields.quit then
-		editors[name].settings.creator=fields.map_creator
+		editors[player].settings.name = fields.map_name
+		editors[name].settings.creator = fields.map_creator
 		editors[name].settings.skybox = fields.map_skybox
 		maps.show_save_form(name, fields.map_name)
 	end
