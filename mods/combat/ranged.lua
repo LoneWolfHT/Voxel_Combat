@@ -5,7 +5,7 @@ for gun, def in pairs(shooter.registered_weapons) do
 
 	if gun == "shooter_guns:pistol" then
 		def.spec.rounds = 10
-		def.spec.tool_caps = {full_punch_interval=0.33, damage_groups={fleshy=1}}
+		def.spec.tool_caps = {full_punch_interval=0.35, damage_groups={fleshy=1}}
 
 		newdef.groups.hold_limit = 1
 	elseif gun == "shooter_guns:rifle" then
@@ -22,7 +22,7 @@ for gun, def in pairs(shooter.registered_weapons) do
 		newdef.groups.hold_limit = 1
 	elseif gun == "shooter_guns:machine_gun" then
 		def.spec.rounds = 27
-		def.spec.tool_caps = {full_punch_interval=0.15, damage_groups={fleshy=1}}
+		def.spec.tool_caps = {full_punch_interval=0.15, damage_groups={fleshy=1.2}}
 
 		newdef.groups.hold_limit = 1
 	end
