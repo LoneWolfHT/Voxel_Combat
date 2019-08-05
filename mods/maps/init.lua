@@ -9,6 +9,7 @@ maps = {}
 maps.mappath = minetest.get_worldpath().."/maps/" -- minetest.get_modpath("maps").."/maps/"
 
 local editors = {}
+local editedmaps = 0
 
 skybox.skies = {
 	"DarkStormy",
@@ -39,6 +40,10 @@ minetest.register_chatcommand("maps", {
 
 		if params[1] == "new" then
 			if not editors[name] then
+				editors[name] = {}
+				editors[name].id = editedmaps
+				editedmaps = editedmaps + 1
+
 				main.playing[name] = false
 				return true, maps.new_map(name)
 			else
@@ -46,6 +51,10 @@ minetest.register_chatcommand("maps", {
 			end
 		elseif params[1] == "edit" and params[2] then
 			if not editors[name] then
+				editors[name] = {}
+				editors[name].id = editedmaps
+				editedmaps = editedmaps + 1
+
 				main.playing[name] = false
 				return maps.edit_map(name, params[2])
 			else
@@ -65,21 +74,19 @@ minetest.register_chatcommand("maps", {
 
 function maps.new_map(pname)
 	local player = minetest.get_player_by_name(pname)
-	local mpos = vector.new(0, 777, 0)
+	local mpos = vector.new(100 * editors[pname].id, 777, 0)
 
-	editors[pname] = {
-		action = "new",
-		settings = {
-			skybox = "TropicalSunnyDay",
-			creator = pname,
-		}
+	editors[pname].action = "new"
+	editors[pname].settings = {
+		skybox = "TropicalSunnyDay",
+		creator = pname,
 	}
 
 	minetest.emerge_area(vector.subtract(mpos, vector.new(20, 0, 20)), vector.add(mpos, vector.new(20, 16, 20)))
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
 		{place_center_x = true, place_center_y=false, place_center_z=true})
 
-	player:set_pos(vector.new(0, 778, 0))
+	player:set_pos(vector.new(100 * editors[pname].id, 778, 0))
 
 	return "Map container placed, build away!"
 end
@@ -88,7 +95,7 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 	local path = maps.mappath..mname.."/"
 	minetest.mkdir(path)
 	local conf, error = io.open(path.."map.conf", "w")
-	local startpos = vector.new(0, 777+8, 0)
+	local startpos = vector.new(100 * editors[pname].id, 777+8, 0)
 
 	if not minetest.find_node_near(startpos, 20, "maps:spawnpoint", true) then
 		return false, "You must place at least one player spawner first!"
@@ -113,7 +120,7 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 		local positions = {}
 
 		while pos do
-			local rpos = vector.new(pos.x, pos.y-777, pos.z)
+			local rpos = vector.new(pos.x-(100 * editors[pname].id), pos.y-777, pos.z)
 			table.insert(positions, rpos)
 			minetest.remove_node(pos)
 			pos = minetest.find_node_near(startpos, 20, item, true)
@@ -126,7 +133,11 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 
 	conf:close()
 
-	local r = minetest.create_schematic(vector.new(-19, 778, -19), vector.new(19, 778+14, 19), {}, path.."map.mts", {})
+	local r = minetest.create_schematic(
+		vector.new((100 * editors[pname].id)-19, 778, -19),
+		vector.new((100 * editors[pname].id)+19, 778+14, 19),
+		{}, path.."map.mts", {}
+	)
 
 	if r then
 		maps.new_map(pname)
@@ -139,12 +150,11 @@ end
 
 function maps.edit_map(pname, mname)
 	local player = minetest.get_player_by_name(pname)
-	local mpos = vector.new(0, 777, 0)
-	local mpos_up = vector.new(0, 778, 0)
+	local mpos = vector.new(100 * editors[pname].id, 777, 0)
+	local mpos_up = vector.new(100 * editors[pname].id, 778, 0)
 
 	if not maps.map_exists(mname) then return false, "No such map!" end
 
-	editors[pname] = {}
 	editors[pname].action = "editing"
 	editors[pname].map = mname
 	editors[pname].settings = {}
@@ -173,12 +183,14 @@ function maps.edit_map(pname, mname)
 
 	while playerspawns and playerspawns[1] do
 		playerspawns[1].y = playerspawns[1].y + 777
+		playerspawns[1].x = playerspawns[1].x + (100 * editors[pname].id)
 		minetest.set_node(playerspawns[1], {name = "maps:spawnpoint"})
 		table.remove(playerspawns, 1)
 	end
 
 	while itemspawns and itemspawns[1] do
 		itemspawns[1].y = itemspawns[1].y + 777
+		playerspawns[1].x = playerspawns[1].x + (100 * editors[pname].id)
 		minetest.set_node(itemspawns[1], {name = "maps:itemspawner"})
 		table.remove(itemspawns, 1)
 	end
@@ -202,6 +214,7 @@ function maps.map_exists(name)
 	return false
 end
 
+local rand_limit = 0
 function maps.get_rand_map()
 	local list = minetest.get_dir_list(minetest.get_worldpath().."/maps/", true)
 
@@ -209,20 +222,40 @@ function maps.get_rand_map()
 
 	local map = list[math.random(1, #list)]
 
-	if main.current_mode.map ~= nil then
+	if vc_info.mode_running then
 		while true do
 			local conf, error = io.open(maps.mappath..map.."/map.conf")
 
 			if not conf then
-				minetest.log("error", error)
+				main.log("error", error)
 				map = list[math.random(1, #list)]
 			else
-				local modes = minetest.deserialize(conf:read("*all"):match("modes = <.->"):sub(12, -2))
+				local modes = minetest.deserialize(conf:read("*all"):match("modes = <.->"):sub(10, -2))
 				conf:close()
 
-				if map ~= main.current_mode.map.name and modes[map].enabled == true then
-					break
+				if modes == nil then
+					main.log("Map "..dump(map).." is corrupted or out of date!", "error")
+				else
+					local found = false
+					for _, mapdef in ipairs(modes) do
+						if mapdef.name == main.current_mode.name and mapdef.enabled then
+							found = true
+							break
+						elseif mapdef.name == main.current_mode.full_name then
+							found = true
+							main.log("error", "The map "..dump(map).." Is outdated. Please edit and re-save it to fix")
+						end
+					end
+					if found then break end
 				end
+			end
+
+			if rand_limit < #list * 2 then
+				rand_limit = rand_limit + 1
+			else
+				rand_limit = 0
+				main.log("No working maps found after 10 tries. Please alert the server admin", "error")
+				return
 			end
 		end
 	end
@@ -242,7 +275,7 @@ function maps.load_map(name)
 	mapdef.name = cfile:match("name = <.->"):sub(9, -2)
 	mapdef.creator = cfile:match("creator = <.->"):sub(12, -2)
 	mapdef.skybox = cfile:match("skybox = <.->"):sub(11, -2)
-	mapdef.modes = minetest.deserialize(cfile:match("modes = <.->"):sub(12, -2))
+	mapdef.modes = minetest.deserialize(cfile:match("modes = <.->"):sub(10, -2))
 	mapdef.playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 	mapdef.itemspawns = minetest.deserialize(cfile:match("ispawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 
@@ -272,19 +305,19 @@ local function tidy_modes(name)
 		editors[name].settings.modes = {}
 	end
 
-	for _, def in pairs(main.modes) do
+	for modename, def in pairs(main.modes) do
 		local found = false
 
 		if editors[name].settings.modes then
 			for k, v in pairs(editors[name].settings.modes) do
-				if v.name == def.full_name then
+				if v.name == modename then
 					found = true
 				end
 			end
 		end
 
 		if not found then
-			table.insert(editors[name].settings.modes, {name = def.full_name, enabled = true})
+			table.insert(editors[name].settings.modes, {name = modename, enabled = true})
 		end
 	end
 
@@ -293,7 +326,7 @@ local function tidy_modes(name)
 			local found = false
 
 			for k, v in pairs(main.modes) do
-				if v.full_name == def.name then
+				if k == def.name then
 					found = true
 					break
 				end
@@ -356,7 +389,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		if success then
 			editors[name] = nil
 			main.playing[name] = true
-			main.join_player(name)
+			main.join_player(minetest.get_player_by_name(name))
 		end
 	elseif not fields.quit then
 		editors[name].settings.creator=fields.map_creator

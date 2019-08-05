@@ -19,14 +19,22 @@ local function rand_mode()
 	return(modes[math.random(1, #modes)])
 end
 
-local modestep = 0
+local modechangestep = 0
 minetest.register_globalstep(function(dtime)
-	if modestep < main.mode_interval then
-		modestep = modestep + dtime
-	else
-		modestep = 0
+	if #minetest.get_connected_players() > 0 then
+		if modechangestep < main.mode_interval then
+			modechangestep = modechangestep + dtime
+		else
+			modechangestep = 0
 
-		main.sethud_all("Changing mode...")
-		minetest.after(3, function() main.start_mode(rand_mode()) end)
+			main.sethud_all("Changing mode...")
+			minetest.after(3, function() main.start_mode(rand_mode()) end)
+		end
+
+		if vc_info.mode_running and main.current_mode.mode.on_step then
+			main.current_mode.mode.on_step(dtime)
+		end
+	else
+		vc_info.mode_running = false
 	end
 end)

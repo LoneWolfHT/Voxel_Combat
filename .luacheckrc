@@ -6,6 +6,7 @@ globals = {
     "shooter",
     "skybox",
     "main",
+    "vc_info",
 }
 
 read_globals = {

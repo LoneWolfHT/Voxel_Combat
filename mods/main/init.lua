@@ -12,21 +12,39 @@ main = {
 		["combat:sword"] = 60,
 	},
 	default_starter_items = {"combat:knife", "shooter_guns:pistol_loaded", "shooter_guns:ammo 2"},
-	default_drop_interval = 20
+	default_drop_interval = 20,
 }
+
+vc_info = {
+	mode_running = false,
+}
+
+function main.log(text, severity)
+	if not severity then
+		minetest.log(text)
+	elseif severity == "warning" then
+		minetest.log("warning", text)
+	elseif severity == "error" then
+		minetest.log("error", text)
+	elseif severity == "fatal" then
+		minetest.request_shutdown(text, true)
+	end
+end
 
 function main.register_mode(name, def)
 	main.modes[name] = def
 end
 
 function main.start_mode(name)
+	vc_info.mode_running = false
+
 	main.current_mode.name = name
 	main.current_mode.mode = main.modes[name]
 
 	local map = maps.get_rand_map()
 
 	if not map then
-		minetest.log("error", "No maps to play on! Create one with /maps new")
+		main.log("No maps to play on! Create one with /maps new", "error")
 		main.current_mode = {}
 		return
 	end
@@ -45,6 +63,8 @@ function main.start_mode(name)
 	end
 
 	main.sethud_all("Current mode: "..main.modes[name].full_name..". Current map: "..mapdef.name, 7)
+
+	vc_info.mode_running = true
 end
 
 function main.join_player(player)
