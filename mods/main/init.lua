@@ -1,7 +1,7 @@
 main = {
 	current_mode = {},
 	modes = {},
-	playing = {},
+	playing = {}, -- main.playing[playername] = true/false
 	mode_interval = 60 * 5,
 	default_drops = {
 		default = "shooter_guns:ammo",
@@ -36,6 +36,10 @@ function main.register_mode(name, def)
 end
 
 function main.start_mode(name)
+	if vc_info.mode_running and main.current_mode.mode.on_end then
+		local _ = main.current_mode.mode.on_end()
+	end
+
 	vc_info.mode_running = false
 
 	main.current_mode.name = name
@@ -60,6 +64,10 @@ function main.start_mode(name)
 		if main.playing[p:get_player_name()] then
 			main.join_player(p)
 		end
+	end
+
+	if main.modes[name].on_start then
+		local _ = main.modes[name].on_start()
 	end
 
 	main.sethud_all("Current mode: "..main.modes[name].full_name..". Current map: "..mapdef.name, 7)
@@ -101,20 +109,20 @@ end
 minetest.register_on_joinplayer(function(p)
 	p:set_hp(20, {type = "set_hp"})
 
-	if #minetest.get_connected_players() == 1 then
+	if not vc_info.mode_running then
 		main.start_mode("default")
 	else
 		main.join_player(p)
 	end
 end)
 
-minetest.register_on_respawnplayer(function(p)
+function main.on_respawn(p)
 	if not main.current_mode.playerspawns then return false end
 
 	p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 
 	return true
-end)
+end
 
 minetest.register_on_player_hpchange(function(_, hp_change, reason)
 	if reason.type == "fall" then

@@ -1,3 +1,20 @@
+--[[ All mode settings
+
+main.register_mode("modename", {
+	full_name = "Mode Name", <required>
+	min_players = 1, <required>
+	drops = main.default_drops, <required>
+	starter_items = main.default_starter_items, <required>
+	drop_interval = main.default_drop_interval, <required>
+	on_start = function(), <optional>
+	on_end = function(), <optional>
+	on_step = function(dtime), <optional>
+	on_death = function(player, reason), <optional>
+	on_respawn = function(player), <optional>
+})
+
+]]--
+
 main.register_mode("default", {
 	full_name = "PvP Party",
 	min_players = 1,
@@ -37,4 +54,18 @@ minetest.register_globalstep(function(dtime)
 	else
 		vc_info.mode_running = false
 	end
+end)
+
+minetest.register_on_dieplayer(function(player, reason)
+	if main.current_mode.mode.on_death and main.playing[player:get_player_name()] then
+		main.current_mode.mode.on_death(player, reason)
+	end
+end)
+
+minetest.register_on_respawnplayer(function(player)
+	if main.current_mode.mode.on_respawn and main.playing[player:get_player_name()] then
+		main.current_mode.mode.on_respawn(player)
+	end
+
+	main.on_respawn(player)
 end)
