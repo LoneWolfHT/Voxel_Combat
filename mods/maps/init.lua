@@ -23,7 +23,7 @@ skybox.skies = {
 minetest.register_privilege("map_maker", {
 	description = S("Allows use of the map making commands/tools"),
 	give_to_singleplayer = false,
-	give_to_admin = true,
+	give_to_admin = false,
 })
 
 minetest.register_chatcommand("maps", {
