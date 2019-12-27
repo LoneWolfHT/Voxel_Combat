@@ -57,13 +57,13 @@ minetest.register_globalstep(function(dtime)
 end)
 
 minetest.register_on_dieplayer(function(player, reason)
-	if main.current_mode.mode.on_death and main.playing[player:get_player_name()] then
+	if vc_info.mode_running and main.current_mode.mode.on_death and main.playing[player:get_player_name()] then
 		main.current_mode.mode.on_death(player, reason)
 	end
 end)
 
 minetest.register_on_respawnplayer(function(player)
-	if main.current_mode.mode.on_respawn and main.playing[player:get_player_name()] then
+	if vc_info.mode_running and main.current_mode.mode.on_respawn and main.playing[player:get_player_name()] then
 		main.current_mode.mode.on_respawn(player)
 	end
 

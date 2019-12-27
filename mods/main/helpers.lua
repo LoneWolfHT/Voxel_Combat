@@ -19,7 +19,7 @@ end
 function main.give_starter_items(inv)
 	main.clear_inv(inv)
 
-	if main.current_mode then
+	if vc_info.mode_running then
 		if main.current_mode.mode.starter_items then
 			for _, item in ipairs(main.current_mode.mode.starter_items) do
 				inv:add_item("main", item)

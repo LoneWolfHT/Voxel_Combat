@@ -44,7 +44,7 @@ minetest.register_chatcommand("maps", {
 				editors[name].id = editedmaps
 				editedmaps = editedmaps + 1
 
-				main.playing[name] = false
+				main.playing[name] = nil
 				return true, maps.new_map(name)
 			else
 				return false, "A map is already being edited!"
@@ -55,7 +55,7 @@ minetest.register_chatcommand("maps", {
 				editors[name].id = editedmaps
 				editedmaps = editedmaps + 1
 
-				main.playing[name] = false
+				main.playing[name] = nil
 				return maps.edit_map(name, params[2])
 			else
 				return false, "A map is already being edited!"
@@ -78,6 +78,7 @@ function maps.new_map(pname)
 
 	editors[pname].action = "new"
 	editors[pname].settings = {
+		name = pname.."s Map",
 		skybox = "TropicalSunnyDay",
 		creator = pname,
 	}
@@ -281,7 +282,6 @@ function maps.load_map(name)
 	mapdef.playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 	mapdef.itemspawns = minetest.deserialize(cfile:match("ispawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 
-
 	minetest.place_schematic(pos, maps.mappath..name.."/map.mts", 0, {}, true,
 		{place_center_x = true, place_center_y=false, place_center_z=true})
 
@@ -293,6 +293,8 @@ local function get_modes_string(name)
 
 	for _, def in ipairs(editors[name].settings.modes) do
 		local color = "#00ff32"
+
+		minetest.log(dump(def))
 
 		if not def.enabled then color = "#ff0000" end
 
@@ -391,7 +393,7 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 			main.join_player(minetest.get_player_by_name(name))
 		end
 	elseif not fields.quit then
-		editors[player].settings.name = fields.map_name
+		editors[name].settings.name = fields.map_name
 		editors[name].settings.creator = fields.map_creator
 		editors[name].settings.skybox = fields.map_skybox
 		maps.show_save_form(name, fields.map_name)
