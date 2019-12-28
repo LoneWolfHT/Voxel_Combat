@@ -7,7 +7,7 @@ minetest.register_tool("combat:knife", {
 	tool_capabilities = {
 		full_punch_interval = 0.9,
 		max_drop_level=1,
-		damage_groups = {fleshy=1},
+		damage_groups = {fleshy=1.5},
 	},
 })
 
@@ -20,7 +20,7 @@ minetest.register_tool("combat:sword", {
 	tool_capabilities = {
 		full_punch_interval = 0.8,
 		max_drop_level=1,
-		damage_groups = {fleshy=3},
+		damage_groups = {fleshy=2},
 	},
 	sound = {breaks = "default_tool_breaks"},
 })

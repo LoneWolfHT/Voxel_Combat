@@ -2,7 +2,7 @@ main = {
 	current_mode = {},
 	modes = {},
 	playing = {}, -- main.playing[playername] = true/false
-	mode_interval = 60 * 5,
+	mode_interval = 60 * 8,
 	default_drops = {
 		default = "shooter_guns:ammo",
 		["combat:medkit"] = 20,
@@ -12,7 +12,7 @@ main = {
 		["combat:sword"] = 60,
 	},
 	default_starter_items = {"combat:knife", "shooter_guns:pistol_loaded", "shooter_guns:ammo 2"},
-	default_drop_interval = 20,
+	default_drop_interval = 25,
 }
 
 vc_info = {
@@ -37,7 +37,7 @@ end
 
 function main.start_mode(name)
 	if vc_info.mode_running and main.current_mode.mode.on_end then
-		local _ = main.current_mode.mode.on_end()
+		main.current_mode.mode.on_end()
 	end
 
 	vc_info.mode_running = false
@@ -60,6 +60,8 @@ function main.start_mode(name)
 	main.current_mode.itemspawns = mapdef.itemspawns
 	main.current_mode.playerspawns = mapdef.playerspawns
 
+	vc_info.mode_running = true
+
 	for _, p in ipairs(minetest.get_connected_players()) do
 		if main.playing[p:get_player_name()] then
 			main.join_player(p)
@@ -67,19 +69,23 @@ function main.start_mode(name)
 	end
 
 	if main.modes[name].on_start then
-		local _ = main.modes[name].on_start()
+		main.modes[name].on_start()
 	end
 
 	main.sethud_all("Current mode: "..main.modes[name].full_name..". Current map: "..mapdef.name, 7)
-
-	vc_info.mode_running = true
 end
 
 function main.join_player(player)
 	local inv = player:get_inventory()
 	local name = player:get_player_name()
 
+	if not vc_info.mode_running then
+		main.log("No mode running. Can't join player", "error")
+		return
+	end
+
 	main.give_starter_items(inv)
+
 
 	skybox.set(player, main.get_sky(main.current_mode.map.skybox))
 	local one, two, three = player:get_sky()
@@ -110,14 +116,17 @@ minetest.register_on_joinplayer(function(p)
 	p:set_hp(20, {type = "set_hp"})
 
 	if not vc_info.mode_running then
-		main.start_mode("default")
+		main.start_mode(main.rand_mode())
 	else
 		main.join_player(p)
 	end
 end)
 
 function main.on_respawn(p)
-	if not main.current_mode.playerspawns then return false end
+	if not vc_info.mode_running or not main.current_mode.playerspawns then
+		minetest.after(5, main.on_respawn, p)
+		return
+	end
 
 	p:set_pos(main.current_mode.playerspawns[math.random(1, #main.current_mode.playerspawns)])
 
@@ -126,6 +135,9 @@ end
 
 minetest.register_on_player_hpchange(function(_, hp_change, reason)
 	if reason.type == "fall" then
+		return 0
+	elseif reason.type == "punch" and reason.object and reason.object:is_player() and
+	vc_info.mode_running and main.current_mode.mode.pvp ~= true then
 		return 0
 	else
 		return hp_change

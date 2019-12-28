@@ -1,3 +1,5 @@
+shooter.config.allow_entities = true
+
 for name, def in pairs(minetest.registered_nodes) do
 	local newdef = {groups = def.groups}
 
@@ -13,6 +15,10 @@ for name, def in pairs(minetest.registered_nodes) do
 
 	if name:find("lava") then
 		newdef.damage_per_second = 100
+	end
+
+	if name:find("dirt") or name:find("sand") then
+		newdef.groups.zombie_ground = 1
 	end
 
 	minetest.override_item(name, newdef)
@@ -43,4 +49,5 @@ end
 default.can_grow = function() return true end
 
 minetest.registered_entities["__builtin:item"].on_punch = nil
+minetest.registered_entities["__builtin:item"].static_save = false
 minetest.registered_entities["__builtin:item"].pointable = false

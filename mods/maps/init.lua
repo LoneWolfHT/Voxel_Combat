@@ -158,9 +158,7 @@ function maps.edit_map(pname, mname)
 
 	editors[pname].action = "editing"
 	editors[pname].map = mname
-	editors[pname].settings = {
-		name = pname.."s Map"
-	}
+	editors[pname].settings = {}
 
 	minetest.emerge_area(vector.subtract(mpos, vector.new(20, 0, 20)), vector.add(mpos, vector.new(20, 16, 20)))
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
@@ -240,7 +238,7 @@ function maps.get_rand_map()
 					main.log("Map "..dump(map).." is corrupted or out of date!", "error")
 				else
 					local found = false
-					for _, mapdef in ipairs(modes) do
+					for _, mapdef in pairs(modes) do
 						if mapdef.name == main.current_mode.name and mapdef.enabled then
 							found = true
 							break
@@ -291,10 +289,8 @@ end
 local function get_modes_string(name)
 	local string = ""
 
-	for _, def in ipairs(editors[name].settings.modes) do
+	for _, def in pairs(editors[name].settings.modes) do
 		local color = "#00ff32"
-
-		minetest.log(dump(def))
 
 		if not def.enabled then color = "#ff0000" end
 
@@ -305,10 +301,6 @@ local function get_modes_string(name)
 end
 
 local function tidy_modes(name)
-	if not editors[name].settings.modes then
-		editors[name].settings.modes = {}
-	end
-
 	for modename, def in pairs(main.modes) do
 		local found = false
 
@@ -321,6 +313,10 @@ local function tidy_modes(name)
 		end
 
 		if not found then
+			if not editors[name].settings.modes then
+				editors[name].settings.modes = {}
+			end
+
 			table.insert(editors[name].settings.modes, {name = modename, enabled = true})
 		end
 	end
@@ -375,7 +371,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	local name = player:get_player_name()
 	local modes = minetest.explode_textlist_event(fields.map_modes)
 
-	if modes.type == "DCL" and editors[name].settings.modes and #editors[name].settings.modes > 0 then
+	minetest.log(dump(modes).."\n"..dump(editors[name].settings.modes))
+
+	if modes.type == "DCL" and editors[name].settings.modes then
 		editors[name].settings.modes[modes.index].enabled = not editors[name].settings.modes[modes.index].enabled
 	end
 

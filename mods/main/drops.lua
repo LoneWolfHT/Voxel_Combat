@@ -1,10 +1,10 @@
-function main.spawn_rand_drop()
+function main.spawn_rand_drop(pos)
 	local drops = main.current_mode.mode.drops
 
 	if not drops then return end
 
 	local itemspawns = main.current_mode.itemspawns
-	local spawnpos = itemspawns[math.random(1, #itemspawns)]
+	local spawnpos = pos or itemspawns[math.random(1, #itemspawns)]
 
 	for item, chance in pairs(drops) do
 		if item ~= "default" then
@@ -23,12 +23,12 @@ end
 
 local dropstep = 0
 minetest.register_globalstep(function(dtime)
-	if not main.current_mode or not main.current_mode.mode then return end
+	if not vc_info.mode_running then return end
 
 	local dropint = main.current_mode.mode.drop_interval
 	local online_players = #minetest.get_connected_players()
 
-	if dropint and dropstep >= dropint/online_players and online_players >= 1 and main.current_mode.mode.itemspawns then
+	if dropint and dropstep >= dropint - (online_players * 5) and online_players >= 1 then
 		dropstep = 0
 
 		main.spawn_rand_drop()
