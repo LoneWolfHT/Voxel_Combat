@@ -12,7 +12,7 @@ main = {
 		["combat:sword"] = 60,
 	},
 	default_starter_items = {"combat:knife", "shooter_guns:pistol_loaded", "shooter_guns:ammo 2"},
-	default_drop_interval = 25,
+	default_drop_interval = 20,
 }
 
 vc_info = {
@@ -85,7 +85,6 @@ function main.join_player(player)
 	end
 
 	main.give_starter_items(inv)
-
 
 	skybox.set(player, main.get_sky(main.current_mode.map.skybox))
 	local one, two, three = player:get_sky()

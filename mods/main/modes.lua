@@ -129,4 +129,6 @@ minetest.register_on_respawnplayer(function(player)
 	end
 
 	main.on_respawn(player)
+
+	return true
 end)

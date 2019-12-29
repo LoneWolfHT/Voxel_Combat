@@ -177,8 +177,8 @@ function maps.edit_map(pname, mname)
 	editors[pname].settings.skybox = cfile:match("skybox = <.->"):sub(11, -2)
 	editors[pname].settings.modes = minetest.deserialize(cfile:match("modes = <.->"):sub(10, -2))
 
-	local playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2))
 	local itemspawns = minetest.deserialize(cfile:match("ispawns = <.->"):sub(12, -2))
+	local playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2))
 
 	conf:close()
 
@@ -277,8 +277,8 @@ function maps.load_map(name)
 	mapdef.creator = cfile:match("creator = <.->"):sub(12, -2)
 	mapdef.skybox = cfile:match("skybox = <.->"):sub(11, -2)
 	mapdef.modes = minetest.deserialize(cfile:match("modes = <.->"):sub(10, -2))
-	mapdef.playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 	mapdef.itemspawns = minetest.deserialize(cfile:match("ispawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
+	mapdef.playerspawns = minetest.deserialize(cfile:match("pspawns = <.->"):sub(12, -2)) or {{0, 5, 0}}
 
 	minetest.place_schematic(pos, maps.mappath..name.."/map.mts", 0, {}, true,
 		{place_center_x = true, place_center_y=false, place_center_z=true})
@@ -370,8 +370,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 
 	local name = player:get_player_name()
 	local modes = minetest.explode_textlist_event(fields.map_modes)
-
-	minetest.log(dump(modes).."\n"..dump(editors[name].settings.modes))
 
 	if modes.type == "DCL" and editors[name].settings.modes then
 		editors[name].settings.modes[modes.index].enabled = not editors[name].settings.modes[modes.index].enabled
