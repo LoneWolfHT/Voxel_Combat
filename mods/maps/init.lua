@@ -144,7 +144,7 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 	)
 
 	if r then
-		minetest.set_player_privs(pname, editors[pname].privs)
+		minetest.set_player_privs(pname, editors[pname].privs or {})
 		minetest.get_player_by_name(pname):get_inventory():remove_item("main", "superpick:pick")
 
 		return true, "Saved map!"
@@ -162,7 +162,9 @@ function maps.edit_map(pname, mname)
 
 	editors[pname].action = "editing"
 	editors[pname].map = mname
-	editors[pname].settings = {}
+	editors[pname].settings = {
+		privs = minetest.get_player_privs(pname),
+	}
 
 	minetest.emerge_area(vector.subtract(mpos, vector.new(20, 0, 20)), vector.add(mpos, vector.new(20, 16, 20)))
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
