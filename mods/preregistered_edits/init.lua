@@ -1,4 +1,5 @@
 shooter.config.allow_entities = true
+shooter.config.shooter_allow_nodes = false
 
 for name, def in pairs(minetest.registered_nodes) do
 	local newdef = {groups = def.groups}
@@ -8,6 +9,7 @@ for name, def in pairs(minetest.registered_nodes) do
 	newdef.groups.oddly_breakable_by_hand = nil
 	newdef.groups.crumbly = nil
 	newdef.groups.dig_immediate = nil
+	newdef.groups.falling_node = nil
 
 	if name:find("sapling") then
 		newdef.on_construct = default.grow_sapling
