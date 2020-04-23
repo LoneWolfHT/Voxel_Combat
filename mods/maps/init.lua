@@ -88,7 +88,7 @@ function maps.new_map(pname)
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
 		{place_center_x = true, place_center_y=false, place_center_z=true})
 
-	minetest.set_player_privs(name, {interact=true, shout=true, map_maker=true, fly=true, fast=true, creative=true})
+	minetest.set_player_privs(pname, {interact=true, shout=true, map_maker=true, fly=true, fast=true, creative=true})
 	player:get_inventory():add_item("main", "superpick:pick")
 	player:set_pos(vector.new(100 * editors[pname].id, 778, 0))
 
@@ -144,7 +144,7 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 	)
 
 	if r then
-		minetest.set_player_privs(name, editors[pname].privs)
+		minetest.set_player_privs(pname, editors[pname].privs)
 		player:get_inventory():remove_item("main", "superpick:pick")
 
 		return true, "Saved map!"
@@ -204,7 +204,7 @@ function maps.edit_map(pname, mname)
 		mpos_up.y = mpos_up.y + 1
 	end
 
-	minetest.set_player_privs(name, {interact=true, shout=true, map_maker=true, fly=true, fast=true, creative=true})
+	minetest.set_player_privs(pname, {interact=true, shout=true, map_maker=true, fly=true, fast=true, creative=true})
 	player:get_inventory():add_item("main", "superpick:pick")
 
 	player:set_pos(mpos_up)
