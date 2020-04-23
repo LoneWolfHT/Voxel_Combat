@@ -1,7 +1,7 @@
 minetest.register_tool("combat:knife", {
 	description = "Knife",
 	inventory_image = "combat_knife.png",
-	range = 1,
+	range = 2,
 	wield_scale = {x = 0.7, y = 0.7, z = 0.7},
 	groups = {hold_limit = 1},
 	tool_capabilities = {
@@ -14,7 +14,7 @@ minetest.register_tool("combat:knife", {
 minetest.register_tool("combat:sword", {
 	description = "Sword",
 	inventory_image = "combat_sword.png",
-	range = 2,
+	range = 3,
 	wield_scale = {x = 1.3, y = 1.5, z = 1},
 	groups = {hold_limit = 1},
 	tool_capabilities = {
