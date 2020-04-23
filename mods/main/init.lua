@@ -2,7 +2,7 @@ main = {
 	current_mode = {},
 	modes = {},
 	playing = {}, -- main.playing[playername] = true/false
-	mode_interval = 60 * 8,
+	mode_interval = 60 * 6.5,
 	default_drops = {
 		default = "shooter_guns:ammo",
 		["combat:medkit"] = 20,
