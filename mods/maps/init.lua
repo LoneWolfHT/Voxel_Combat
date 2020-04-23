@@ -145,7 +145,7 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 
 	if r then
 		minetest.set_player_privs(pname, editors[pname].privs)
-		player:get_inventory():remove_item("main", "superpick:pick")
+		minetest.get_player_by_name(pname):get_inventory():remove_item("main", "superpick:pick")
 
 		return true, "Saved map!"
 	end

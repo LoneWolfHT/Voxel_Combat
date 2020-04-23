@@ -20,7 +20,7 @@ for name, def in pairs(minetest.registered_nodes) do
 		newdef.damage_per_second = 100
 	end
 
-	if name:find("source") then
+	if name:find("source") or name:find("flowing") then
 		newdef.liquid_range = 0
 	end
 
