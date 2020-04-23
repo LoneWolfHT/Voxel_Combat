@@ -20,6 +20,10 @@ for name, def in pairs(minetest.registered_nodes) do
 		newdef.damage_per_second = 100
 	end
 
+	if name:find("source") then
+		newdef.liquid_range = 0
+	end
+
 	if name:find("dirt") or name:find("sand") then
 		newdef.groups.zombie_ground = 1
 	end
