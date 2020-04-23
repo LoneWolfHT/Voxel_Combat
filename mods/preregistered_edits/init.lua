@@ -10,6 +10,7 @@ for name, def in pairs(minetest.registered_nodes) do
 	newdef.groups.crumbly = nil
 	newdef.groups.dig_immediate = nil
 	newdef.groups.falling_node = nil
+	newdef.on_rightclick = nil
 
 	if name:find("sapling") then
 		newdef.on_construct = default.grow_sapling
