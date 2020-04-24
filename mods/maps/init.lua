@@ -144,7 +144,10 @@ function maps.save_map(pname, mname, creator, skybox, modes)
 	)
 
 	if r then
-		minetest.set_player_privs(pname, editors[pname].privs or {})
+		if editors[pname].privs == nil then
+			main.log(("Privs field of editors[%s] is nil"):format(dump(pname)), "error")
+		end
+		minetest.set_player_privs(pname, editors[pname].privs or {interact = true, map_maker = true, shout = true})
 		minetest.get_player_by_name(pname):get_inventory():remove_item("main", "superpick:pick")
 
 		return true, "Saved map!"
@@ -162,9 +165,7 @@ function maps.edit_map(pname, mname)
 
 	editors[pname].action = "editing"
 	editors[pname].map = mname
-	editors[pname].settings = {
-		privs = minetest.get_player_privs(pname),
-	}
+	editors[pname].settings = {}
 
 	minetest.emerge_area(vector.subtract(mpos, vector.new(20, 0, 20)), vector.add(mpos, vector.new(20, 16, 20)))
 	minetest.place_schematic(mpos, minetest.get_modpath("maps").."/schems/base.mts", 0, {}, true,
@@ -206,6 +207,7 @@ function maps.edit_map(pname, mname)
 		mpos_up.y = mpos_up.y + 1
 	end
 
+	editors[pname].privs = minetest.get_player_privs(pname)
 	minetest.set_player_privs(pname, {interact=true, shout=true, map_maker=true, fly=true, fast=true, creative=true})
 	player:get_inventory():add_item("main", "superpick:pick")
 
@@ -230,7 +232,9 @@ function maps.get_rand_map()
 
 	if not list or #list == 0 then return end
 
-	local map = list[math.random(1, #list)]
+	local mapkey = math.random(1, #list)
+	local map = list[mapkey]
+	local default
 
 	if vc_info.mode_running then
 		while true do
@@ -238,7 +242,6 @@ function maps.get_rand_map()
 
 			if not conf then
 				main.log("error", error)
-				map = list[math.random(1, #list)]
 			else
 				local modes = minetest.deserialize(conf:read("*all"):match("modes = <.->"):sub(10, -2))
 				conf:close()
@@ -246,27 +249,37 @@ function maps.get_rand_map()
 				if modes == nil then
 					main.log("Map "..dump(map).." is corrupted or out of date!", "error")
 				else
-					local found = false
-					for _, mapdef in pairs(modes) do
-						if mapdef.name == main.current_mode.name and mapdef.enabled then
-							found = true
-							break
-						elseif mapdef.name == main.current_mode.full_name then
-							found = true
-							main.log("error", "The map "..dump(map).." Is outdated. Please edit and re-save it to fix")
+					local found_compat_mode = false
+
+					for _, compat_modes in pairs(modes) do -- loop through modes
+						if compat_modes.name == main.current_mode.name and compat_modes.enabled == true then
+							if main.current_mode.map.name ~= map then
+								found_compat_mode = true
+								break
+							else
+								default = map
+							end
 						end
 					end
-					if found then break end
+
+					if found_compat_mode then
+						break
+					else
+						table.remove(list, mapkey)
+					end
 				end
 			end
 
-			if rand_limit < #list * 2 then
+			if rand_limit < 50 and #list > 0 then
 				rand_limit = rand_limit + 1
 			else
 				rand_limit = 0
-				main.log("No working maps found after 10 tries. Please alert the server admin", "error")
-				return
+				main.log("No working maps found. Please alert the server admin", "error")
+				return default
 			end
+
+			mapkey = math.random(1, #list)
+			map = list[mapkey]
 		end
 	end
 
@@ -378,6 +391,9 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 	if formname ~= "maps:save_form" then return end
 
 	local name = player:get_player_name()
+
+	if not editors[name] then minetest.kick_player(name, "Suspected attempt at exploiting") end -- :)
+
 	local modes = minetest.explode_textlist_event(fields.map_modes)
 
 	if modes.type == "DCL" and editors[name].settings.modes then
