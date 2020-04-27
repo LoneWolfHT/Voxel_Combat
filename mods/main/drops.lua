@@ -27,9 +27,11 @@ minetest.register_globalstep(function(dtime)
 
 	local dropint = main.current_mode.mode.drop_interval
 	local online_players = #minetest.get_connected_players()
-	local playercount_reduction = (online_players * 5)
+	local playercount_reduction = online_players * 5
 
-	if playercount_reduction > 15 then playercount_reduction = 15 end
+	if playercount_reduction > 15 then
+		playercount_reduction = 15
+	end
 
 	if dropint and dropstep >= dropint - playercount_reduction and online_players >= 1 then
 		dropstep = 0
