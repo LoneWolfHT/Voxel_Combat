@@ -31,6 +31,7 @@ main.register_mode("zombie_survival", {
 	min_players = 1,
 	drops = main.default_drops,
 	starter_items = main.default_starter_items,
+	drop_interval = main.default_drop_interval * 2,
 	on_step = function(dtime)
 		z_s_modestep = z_s_modestep + dtime
 
